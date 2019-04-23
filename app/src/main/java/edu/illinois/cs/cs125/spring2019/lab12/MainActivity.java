@@ -3,6 +3,11 @@ package edu.illinois.cs.cs125.spring2019.lab12;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.ViewAnimator;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -10,6 +15,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,6 +31,11 @@ public final class MainActivity extends AppCompatActivity {
     /** Request queue for our API requests. */
     private static RequestQueue requestQueue;
 
+    private String firstNum;
+    private String secondNum;
+    EditText first;
+    EditText second;
+
     /**
      * Run when this activity comes to the foreground.
      *
@@ -32,13 +44,42 @@ public final class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+
+        //first = (EditText) findViewById(R.id.first);
+        second = (EditText) findViewById(R.id.second);
+        final TextView firstnum = findViewById(R.id.first);
+        firstnum.setOnClickListener(v -> {
+            Log.d(TAG, "LALALA");
+        });
+
+
+
+
+
+
+
+
+
+
+
 
         // Set up the queue for our API requests
         requestQueue = Volley.newRequestQueue(this);
 
-        setContentView(R.layout.activity_main);
 
-        startAPICall("192.17.96.8");
+        final Button update = findViewById(R.id.Update);
+        update.setOnClickListener(v -> {
+            Log.d(TAG, "Update scores");
+            startAPICall("192.234.2.11");
+        });
+        System.out.println();
+        final TextView city = findViewById(R.id.City);
+        city.setOnClickListener(v -> {
+            JsonObjectRequest setMe = requestQueue;
+            city.setText(setMe);
+        });
     }
 
     /**
@@ -90,4 +131,5 @@ public final class MainActivity extends AppCompatActivity {
             Log.i(TAG, response.get("hostname").toString());
         } catch (JSONException ignored) { }
     }
+
 }
