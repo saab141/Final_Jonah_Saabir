@@ -1,8 +1,11 @@
 package edu.illinois.cs.cs125.spring2019.lab12;
 
+import android.drm.DrmStore;
+import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -20,22 +23,24 @@ import com.google.gson.JsonParser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 /**
  * Main class for our UI design lab.
  */
 public final class MainActivity extends AppCompatActivity {
-    /** Default logging tag for messages from the main activity. */
-    private static final String TAG = "Lab12:Main";
+    /**
+     * Default logging tag for messages from the main activity.
+     */
+    private static final String TAG = "Final Project";
 
-    /** Request queue for our API requests. */
-    private static RequestQueue requestQueue;
-
-    private String firstNum;
-    private String secondNum;
-    EditText first;
-    EditText second;
-
+    /**
+     * Request queue for our API requests.
+     */
+    private char operator;
+    private TextView output;
+    private EditText first;
+    private EditText second;
     /**
      * Run when this activity comes to the foreground.
      *
@@ -45,43 +50,79 @@ public final class MainActivity extends AppCompatActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        first = findViewById(R.id.first);
+        second = findViewById(R.id.second);
+        TextView ans = findViewById(R.id.answer);
+
+        final MediaPlayer calcsound = MediaPlayer.create(this, R.raw.media);
+        final MediaPlayer beeps = MediaPlayer.create(this, R.raw.beep2);
 
 
-        //first = (EditText) findViewById(R.id.first);
-        second = (EditText) findViewById(R.id.second);
-        final TextView firstnum = findViewById(R.id.first);
-        firstnum.setOnClickListener(v -> {
-            Log.d(TAG, "LALALA");
+
+
+        final Button calculate = findViewById(R.id.calculate);
+        calculate.setOnClickListener(new View.OnClickListener() {
+            public void onClick(final View v) {
+                calcsound.start();
+                Log.d(TAG, "solve!");
+                double hold = solution();
+                String[] arr = new String[1];
+                String answerAsString = Double.toString(hold);
+                arr[0] = answerAsString;
+                ans.setText(arr[0]);
+
+            }
+        });
+        final Button plus = findViewById(R.id.Plus);
+        plus.setOnClickListener(new View.OnClickListener() {
+            public void onClick(final View v) {
+                beeps.start();
+                Log.d(TAG, "plus!");
+                operator = '+';
+            }
         });
 
-
-
-
-
-
-
-
-
-
-
-
-        // Set up the queue for our API requests
-        requestQueue = Volley.newRequestQueue(this);
-
-
-        final Button update = findViewById(R.id.Update);
-        update.setOnClickListener(v -> {
-            Log.d(TAG, "Update scores");
-            startAPICall("192.234.2.11");
+        final Button minus = findViewById(R.id.Minus);
+        minus.setOnClickListener(new View.OnClickListener() {
+            public void onClick(final View v) {
+                beeps.start();
+                Log.d(TAG, "minus!");
+                operator = '-';
+            }
         });
-        System.out.println();
-        final TextView city = findViewById(R.id.City);
-        city.setOnClickListener(v -> {
-            JsonObjectRequest setMe = requestQueue;
-            city.setText(setMe);
+        final Button divide = findViewById(R.id.Div);
+        divide.setOnClickListener(new View.OnClickListener() {
+            public void onClick(final View v) {
+                beeps.start();
+                Log.d(TAG, "divide!");
+                operator = '/';
+            }
+        });
+        final Button mult = findViewById(R.id.Mult);
+        mult.setOnClickListener(new View.OnClickListener() {
+            public void onClick(final View v) {
+                beeps.start();
+                Log.d(TAG, "multiply!");
+                operator = '*';
+            }
+        });
+        final Button sqrt = findViewById(R.id.sqrt);
+        sqrt.setOnClickListener(new View.OnClickListener() {
+            public void onClick(final View v) {
+                beeps.start();
+                Log.d(TAG, "root!");
+                operator = '√';
+            }
+        });
+        final Button log = findViewById(R.id.log);
+        log.setOnClickListener(new View.OnClickListener() {
+            public void onClick(final View v) {
+                beeps.start();
+                Log.d(TAG, "log!");
+                operator = 'l';
+            }
         });
     }
-
     /**
      * Run when this activity is no longer visible.
      */
@@ -90,46 +131,29 @@ public final class MainActivity extends AppCompatActivity {
         super.onPause();
     }
 
-    /**
-     * Make a call to the IP geolocation API.
-     *
-     * @param ipAddress IP address to look up
-     */
-    void startAPICall(final String ipAddress) {
-        try {
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                    Request.Method.GET,
-                    "https://ipinfo.io/" + ipAddress + "/json",
-                    null,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(final JSONObject response) {
-                            apiCallDone(response);
-                        }
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(final VolleyError error) {
-                            Log.e(TAG, error.toString());
-                        }
-                    });
-            jsonObjectRequest.setShouldCache(false);
-            requestQueue.add(jsonObjectRequest);
-        } catch (Exception e) {
-            e.printStackTrace();
+    public double solution() {
+        if (operator == 'l') {
+            return Math.log(Integer.parseInt(first.getText().toString()));
+        }
+        if (operator == '√') {
+            return Math.sqrt(Integer.parseInt(first.getText().toString()));
+        }
+        if (operator == '+') {
+            return Integer.parseInt(first.getText().toString())
+                    + Integer.parseInt(second.getText().toString());
+        } else if (operator == '-') {
+            return Integer.parseInt(first.getText().toString())
+                    - Integer.parseInt(second.getText().toString());
+        } else if (operator == '*') {
+            return Integer.parseInt(first.getText().toString())
+                    * Integer.parseInt(second.getText().toString());
+        } else if (operator == '/') {
+            double one = (double) Integer.parseInt(first.getText().toString());
+            double two = (double) Integer.parseInt(second.getText().toString());
+            return one / two;
+
+        } else {
+            return 0.0;
         }
     }
-
-    /**
-     * Handle the response from our IP geolocation API.
-     *
-     * @param response response from our IP geolocation API.
-     */
-    void apiCallDone(final JSONObject response) {
-        try {
-            Log.d(TAG, response.toString(2));
-            // Example of how to pull a field off the returned JSON object
-            Log.i(TAG, response.get("hostname").toString());
-        } catch (JSONException ignored) { }
-    }
-
 }
